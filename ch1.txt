@@ -1,0 +1,74 @@
+正则表达式的声明方式
+1. 构造函数：new RegExp('^\\w+$', ‘m’)
+2. 字面量：/^\w+$/m 
+声明：后者快10倍
+使用：后者快100倍
+匹配模式
+ i 忽略大小写
+ m 多行模式：字符^$匹配每一行的开始和结束
+ g 全局匹配：不只是匹配第一个
+ u Unicode模式：处理大于\uFFFF的字符
+ y 黏度：只从lastIndex开始匹配1次（不能跟g合用，否则失效）
+特殊字符
+^ $ . \d \D \w \W \s \S \b \B ……
+\b 单词边界；
+英文：[^a-zA-Z0-9_]和^$；
+中文：[a-zA-Z0-9_]和^$
+"he_llo我的reg exp".match(/\b\S+?\b/g)
+// [“he_llo”, "我的", "reg", "exp"]
+数量词
+ x{n} x连续出现n次
+ x{n,m} x连续出现n到m次
+ x{n,} x连续出现n+次
+ x? == x{0,1}
+ x* == x{0,}
+ x+ == x{1,}
+条件
+ [xy] 匹配一个字符，x或y
+ [^xy] 匹配一个字符，非x非y
+ x|y 满足x或y
+ x(?=y) x后必须是y，但y不纳入结果集
+ (?!x) 不包含x
+ '张三20岁，李四24年'.match(/\d+(?=岁)/g)
+ /^(?:(?!admin)\w)+$/.test('imadmin')
+捕获组
+ (x) 匹配x并存储结果
+ (?:x) 匹配x但不存储结果
+/(?:a|b)(\d+)/.exec('ab1c2')
+反向引用
+\n 匹配第n个分组(x)
+// 捕获class=u的所有标签
+var s = '<a class="u">AA</a><b class="u"></b>';
+var r = /<([a-z]+) class=(["'])u\2[\s\S]+?<\/\1>/ig;
+s.match(r);
+贪婪模式
+最大可能匹配
+ x* == x{0,}
+ x+ == x{1,}
+/.*江/.exec('沪江沪江沪江')
+非贪婪模式
+最小可能匹配
+ x*?
+x+?
+/.*江/.exec('沪江沪江沪江')
+应用
+ RegExp.p.exec(string) array
+ RegExp.p.test(string) boolen
+ String.p.match(regexp) array
+ String.p.replace(str|regexp, str|func) string
+ String.p.search(regexp) number
+ String.p.split(str|regexp, limit) array
+#实战#
+ 1.构造简单的模板引擎
+var s = '<div><a class="red" href="/intro/200">class200</a><a href="http://qq.com/">qq</a><a href="/?from=http://g.cn">home</a></div>';
+var r = /<a [^>]*href=(["'])(?!https?:\/\/).+?\1[^>]*>[\s\S]*?<\/a>/ig;
+function render(s, json) {
+ for (var name in json) {
+  s = s.replace(new RegExp('{{' + name + '}}', 'ig'), json[name]);
+ }
+ return s;
+}
+2.匹配：12月25日23:30
+/^(\d{1,2})\月(\d{1,2})\日(\d{1,2}):(\d{1,2})$/
+匹配：12-05
+/^(\d{1,2})\-(\d{1,2})$/
